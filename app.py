@@ -20,7 +20,6 @@ import os
 #import ast
 
 geolocator = Nominatim(user_agent="my_user_agent")
-mydir = os.path.expanduser("~/GitHub/LocationFinder")
 
 #########################################################################################
 ################################# CONFIG APP ############################################
@@ -42,7 +41,7 @@ app.config.suppress_callback_exceptions = True
 #########################################################################################
 
 ls = []
-with open(mydir + '/data/geojson/Boundaries - Community Areas (current).geojson') as f:
+with open('./data/geojson/Boundaries - Community Areas (current).geojson') as f:
     com_area_geo = json.load(f)
 for feature in com_area_geo["features"]:
     com_area = feature['properties']['community']
@@ -82,6 +81,10 @@ def generate_control_card1():
                 type="text",
                 value='545 N Pine Ave, Chicago, IL 60644',
                 placeholder="Street address",
+                style={
+                    'textAlign': 'left',
+                    'width': '100%',
+                    },
                 ),
             
         ],
