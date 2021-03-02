@@ -203,6 +203,7 @@ def update_output1(v1):
     except:
         lat = 41.8902467 
         lon = -87.76294496956751
+        v1 = None
     
     figure = px.choropleth_mapbox(df, 
                                   geojson = js, 
