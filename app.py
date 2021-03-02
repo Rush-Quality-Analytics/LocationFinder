@@ -74,11 +74,12 @@ def generate_control_card1():
     return html.Div(
         id="control-card1",
         children=[
-            html.B("Street address", style={'textAlign': 'left', 'color': '#3385ff'}),
+            html.B("Enter an address and press Return", style={'textAlign': 'left', 'color': '#3385ff'}),
             html.Br(),
             dcc.Input(
                 id="address1",
                 type="text",
+                debounce = True,
                 value='545 N Pine Ave, Chicago, IL 60644',
                 placeholder="Street address",
                 style={
@@ -191,11 +192,17 @@ app.layout = html.Div([
     )
 def update_output1(v1):
     
-    #print(v1)
+    if v1 == None:
+        lat = 41.8902467 
+        lon = -87.76294496956751
     
-    # Account for empty dataframe for crimes in 2020 - 2021
-    
-    #print(df.head())
+    try:
+        loc = geolocator.geocode(v1)
+        lat = loc.latitude
+        lon = loc.longitude
+    except:
+        lat = 41.8902467 
+        lon = -87.76294496956751
     
     figure = px.choropleth_mapbox(df, 
                                   geojson = js, 
@@ -203,7 +210,7 @@ def update_output1(v1):
                                   color = 'num',
                                   color_continuous_scale = "Blues",
                                   mapbox_style="carto-positron",
-                                  zoom=11.7, center = {"lat": 41.89, "lon": -87.75},
+                                  zoom=11.7, center = {"lat": lat, "lon": lon},
                                   opacity=0.6,
                                   #hover_data=[lab, 'No. of times greater than average'],
                                   )
@@ -218,48 +225,28 @@ def update_output1(v1):
         margin={"r":0,"t":0,"l":0,"b":0},
         )
     
-    if v1 == None:
-        return figure
-    
-    try:
-        loc = geolocator.geocode(v1)
-        lat = loc.latitude
-        lon = loc.longitude
-    except:
-        lat = 41.89
-        lon = -87.5
-    
-    #print(lat, lon)
-    
-    tdf = pd.DataFrame(columns=['Latitude', 'Longitude'])
-    tdf['Latitude'] = [lat]
-    tdf['Longitude'] = [lon]
-    
-    figure.add_trace(go.Scattermapbox(
-        lon = tdf['Longitude'],
-        lat = tdf['Latitude'],
-        text = v1,
+    if v1 == None or v1 == '':
+        pass
+    else:
+        tdf = pd.DataFrame(columns=['Latitude', 'Longitude'])
+        tdf['Latitude'] = [lat]
+        tdf['Longitude'] = [lon]
         
-        marker = dict(
-            size = 20,
-            color = '#ff0066',
-            opacity = 0.9,
-            #line=dict(
-            #          width=2,
-            #          color='DarkSlateGrey')
+        figure.add_trace(go.Scattermapbox(
+            lon = tdf['Longitude'],
+            lat = tdf['Latitude'],
+            text = v1,
+            
+            marker = dict(
+                size = 20,
+                color = '#ff0066',
+                opacity = 0.9,
+                #line=dict(
+                #          width=2,
+                #          color='DarkSlateGrey')
+                ),
             ),
-        ),
-        )
-    
-    figure.update_layout(
-        autosize=True,
-        coloraxis_showscale=False,
-        showlegend=False,
-        hovermode='closest',
-        mapbox_style="light",
-        height=500, 
-        margin={"r":0,"t":0,"l":0,"b":0},
-        )
+            )
     
     return figure
 
